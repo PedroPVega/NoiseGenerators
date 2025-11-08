@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from vectoring import Fade, Lerp, Interpolate, GetPermutation, GetConstantVector
 
 def CreateRandomMap(size):
@@ -40,6 +41,7 @@ def CreatePerlinMap(size, freq, normalize):
 
     # create grid with every pseudo-random generated gradient vector
     gradientGrid = GetPermutation(freq)
+    cellLength = size // freq
 
     # create vector of shape 4,1 ; it will be useful later
     dotProducts = np.zeros((4,), dtype = float)
@@ -48,24 +50,26 @@ def CreatePerlinMap(size, freq, normalize):
     for x in range(size):
         for y in range(size):
             # get latice cell coords
-            ix = x // freq
-            iy = y // freq
+            ix = x // cellLength
+            iy = y // cellLength
 
             # get fractional part inside cell
-            fx = x % freq
-            fy = y % freq
+            fx = x % cellLength
+            fy = y % cellLength
 
             # compute the vectors to the four corners
             topLeft = [fx, fy]
-            bottomLeft = [fx - freq, fy]
-            bottomRight = [fx - freq, fy - freq]
-            topRight = [fx, fy - freq]
+            bottomLeft = [fx - cellLength, fy]
+            bottomRight = [fx - cellLength, fy - cellLength]
+            topRight = [fx, fy - cellLength]
             relativeVectors = np.array([topLeft, bottomLeft, bottomRight, topRight])
-            relativeVectors = relativeVectors / freq
+            relativeVectors = relativeVectors / cellLength
 
             # retreive gradient vectors from the four corners
             ix_wrap = (ix + 1) % freq
             iy_wrap = (iy + 1) % freq
+            #print(ix, iy)
+            #time.sleep(0.001)
             gradTopLeft = GetConstantVector(gradientGrid[ix, iy])
             gradBottomLeft = GetConstantVector(gradientGrid[ix_wrap, iy])
             gradBottomRight = GetConstantVector(gradientGrid[ix_wrap, iy_wrap])
@@ -77,7 +81,7 @@ def CreatePerlinMap(size, freq, normalize):
                 dotProducts[i] = np.dot(relativeVectors[i], gradVectors[i])
 
             # calculate interpolation of 4 corners with Fade
-            interpol = Interpolate(Fade(fx/freq), Fade(fy/freq), dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3])
+            interpol = Interpolate(Fade(fx/cellLength), Fade(fy/cellLength), dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3])
 
             # asign value
             imag[x, y] = interpol
@@ -87,4 +91,23 @@ def CreatePerlinMap(size, freq, normalize):
         min = np.min(imag)
         imag = (imag - min) / (max - min)
         
+    return imag
+
+def CreateFractalMap(size, freqs):
+    # Create image grid
+    imag = np.zeros((size,size), dtype = float)
+
+    # For each frequence :
+    for f in freqs:
+        # Create normalized perlin map of that frequence
+        perlin = CreatePerlinMap(size, f, True)
+
+        # Add the new perlin map to the grid
+        imag += perlin
+
+    # Normalize the image
+    max = np.max(imag)
+    min = np.min(imag)
+    imag = (imag - min) / (max - min)
+
     return imag

@@ -1,18 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from maps import CreateNormalizedMap
-from maps import CreateRandomMap
-from maps import CreateValueMap
-from maps import CreatePerlinMap
+from maps import CreateRandomMap, CreateValueMap, CreatePerlinMap, CreateFractalMap
 
-PerlinNoise = CreatePerlinMap(256, 32, True)
-ValueNoise = CreateValueMap(256, 32)
 WhiteNoise = CreateRandomMap(256)
+ValueNoise = CreateValueMap(256, 16)
+PerlinNoise = CreatePerlinMap(256, 4, True)
+FractalNoise = CreateFractalMap(256, [8, 4, 2])
 
-f, axes = plt.subplots(1, 3)
-axes[0].imshow(WhiteNoise, cmap = 'gray')
-axes[1].imshow(ValueNoise, cmap = 'gray')
-axes[2].imshow(PerlinNoise, cmap = 'gray')
+f, axes = plt.subplots(2, 2)
+axes[0, 0].imshow(WhiteNoise, cmap = 'gray')
+axes[0, 1].imshow(ValueNoise, cmap = 'gray')
+axes[1, 0].imshow(PerlinNoise, cmap = 'gray')
+axes[1, 1].imshow(FractalNoise, cmap = 'gray')
 plt.show()
 
         
