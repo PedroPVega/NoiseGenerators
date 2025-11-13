@@ -17,24 +17,12 @@ def CreateNormalizedMap():
     return mat
 
 def CreateValueMap(size, nb_poles, seed = None): 
-    # TODO : Simplify the nested loops
     squareSize = size // nb_poles
    
     hash = GetPermutation(nb_poles, seed)
 
     mat = np.zeros((size,size))
-    '''
-    for x in range(nb_poles):
-        for y in range(nb_poles):
-            for z in range(squareSize):
-                for t in range(squareSize):
-                    mat[squareSize*x + z, squareSize*y + t] = Interpolate(Fade(z / squareSize), 
-                                                                          Fade(t / squareSize), 
-                                                                          hash[x, y], 
-                                                                          hash[(x+1)%nb_poles, y], 
-                                                                          hash[(x+1)%nb_poles,(y+1)%nb_poles], 
-                                                                  hash[x,(y+1)%nb_poles])
-    '''
+    
     for x in range(size):
         for y in range(size):
             ix = x // nb_poles
