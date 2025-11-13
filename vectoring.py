@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def Fade(t):
     return t**3 * (10 + t * (6 * t - 15))
 
@@ -21,7 +20,8 @@ def GetConstantVector(index):
     else:
         return [1, -1]
     
-def GetPermutation(freq):
+def GetPermutation(freq, seed):
+    if seed: np.random.seed(seed)
     perm = np.arange(np.int32(freq**2))
     np.random.shuffle(perm)
     return np.reshape(perm, (freq,freq))

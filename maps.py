@@ -16,12 +16,12 @@ def CreateNormalizedMap():
             mat[i,j] = c
     return mat
 
-def CreateValueMap(size, nb_poles): 
+def CreateValueMap(size, nb_poles, seed : None): 
     # TODO : Simplify the nested loops
     squareSize = size // nb_poles
-    hash = np.arange(nb_poles*nb_poles)
-    np.random.shuffle(hash)
-    hash = np.reshape(hash, (-1,nb_poles))
+   
+    hash = GetPermutation(nb_poles, seed)
+
     mat = np.zeros((size,size))
     for x in range(nb_poles):
         for y in range(nb_poles):
@@ -35,12 +35,12 @@ def CreateValueMap(size, nb_poles):
                                                                   hash[x,(y+1)%nb_poles])
     return mat
 
-def CreatePerlinMap(size, freq, normalize):
+def CreatePerlinMap(size, freq, normalize, seed : None):
     # create image grid 100 * 100
     imag = np.zeros((size,size), dtype = float)
 
     # create grid with every pseudo-random generated gradient vector
-    gradientGrid = GetPermutation(freq)
+    gradientGrid = GetPermutation(freq, seed)
     cellLength = size // freq
 
     # create vector of shape 4,1 ; it will be useful later
@@ -93,17 +93,21 @@ def CreatePerlinMap(size, freq, normalize):
         
     return imag
 
-def CreateFractalMap(size, freqs):
+def CreateFractalMap(size, freqs, seed : None):
     # Create image grid
     imag = np.zeros((size,size), dtype = float)
 
     # For each frequence :
+    dilatation = 1
     for f in freqs:
         # Create normalized perlin map of that frequence
-        perlin = CreatePerlinMap(size, f, True)
+        perlin = CreatePerlinMap(size, f, True, seed)
 
         # Add the new perlin map to the grid
-        imag += perlin
+        imag += (1/dilatation) * perlin
+
+        # Dilute next perlin noise
+        dilatation = dilatation + 1
 
     # Normalize the image
     max = np.max(imag)
