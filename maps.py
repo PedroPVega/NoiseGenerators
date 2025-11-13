@@ -16,13 +16,14 @@ def CreateNormalizedMap():
             mat[i,j] = c
     return mat
 
-def CreateValueMap(size, nb_poles, seed : None): 
+def CreateValueMap(size, nb_poles, seed = None): 
     # TODO : Simplify the nested loops
     squareSize = size // nb_poles
    
     hash = GetPermutation(nb_poles, seed)
 
     mat = np.zeros((size,size))
+    '''
     for x in range(nb_poles):
         for y in range(nb_poles):
             for z in range(squareSize):
@@ -33,9 +34,22 @@ def CreateValueMap(size, nb_poles, seed : None):
                                                                           hash[(x+1)%nb_poles, y], 
                                                                           hash[(x+1)%nb_poles,(y+1)%nb_poles], 
                                                                   hash[x,(y+1)%nb_poles])
+    '''
+    for x in range(size):
+        for y in range(size):
+            ix = x // nb_poles
+            iy = y // nb_poles
+            z = x % squareSize
+            t = y % squareSize
+            mat[x, y] = Interpolate(Fade(z / squareSize), 
+                                            Fade(t / squareSize), 
+                                            hash[ix, iy], 
+                                            hash[(ix+1)%nb_poles, iy], 
+                                            hash[(ix+1)%nb_poles, (iy+1)%nb_poles], 
+                                            hash[ix, (iy+1)%nb_poles])
     return mat
 
-def CreatePerlinMap(size, freq, normalize, seed : None):
+def CreatePerlinMap(size, freq, normalize, seed = None):
     # create image grid 100 * 100
     imag = np.zeros((size,size), dtype = float)
 
@@ -93,7 +107,7 @@ def CreatePerlinMap(size, freq, normalize, seed : None):
         
     return imag
 
-def CreateFractalMap(size, freqs, seed : None):
+def CreateFractalMap(size, freqs, seed = None):
     # Create image grid
     imag = np.zeros((size,size), dtype = float)
 
