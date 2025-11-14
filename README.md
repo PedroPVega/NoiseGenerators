@@ -1,7 +1,7 @@
 # Noise Generators
 
 ## Description
-This is a personal side project I started around the 20th of october 2025. It is a collection of functions allowing to create some random noises with python and its famous library numpy to accelerate calculations.
+This is a personal side project I started around the 20th of october 2025. It is a collection of functions allowing to create some random noises with python and its famous library numpy to accelerate calculations (although it still remains incredibely slow when it concerns perlin and fractal noise).
 
 ## Noises created
 For the moment, I have made algoritmhs for : 
