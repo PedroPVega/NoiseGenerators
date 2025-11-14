@@ -38,39 +38,8 @@ def CreateValueMap(size, nb_poles, seed = None):
     return mat
 
 def CreatePerlinMap(size, freq, normalize, seed = None):
-    '''
-    # foreach point in the image x, y
-    for x in range(size):
-        for y in range(size):
-            # get latice cell coords
-            ix = x // cellLength
-            iy = y // cellLength
-
-            # get fractional part inside cell
-            fx = x % cellLength
-            fy = y % cellLength
-
-            # compute the vectors to the four corners
-            relativeVectors = GetRelativeVectors(fx, fy, cellLength)
-
-            # retreive gradient vectors from the four corners
-            ix_wrap = (ix + 1) % freq
-            iy_wrap = (iy + 1) % freq 
-
-            gradVectors = GetCornerVectors(gradientGrid, ix, ix_wrap, iy, iy_wrap)
-
-            # calculate every dot product
-            for i in range(4):
-                dotProducts[i] = np.dot(relativeVectors[i], gradVectors[i])
-
-            # calculate interpolation of 4 corners with Fade
-            interpol = Interpolate(Fade(fx/cellLength), Fade(fy/cellLength), dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3])
-
-            # asign value
-            imag[x, y] = interpol
-    '''
     # create image grid 100 * 100
-    imag = np.zeros((size,size), dtype = float)
+    imag = np.zeros((size**2,), dtype = float)
 
     # create grid with every pseudo-random generated gradient vector
     gradientGrid = GetPermutation(freq, seed)
@@ -78,17 +47,15 @@ def CreatePerlinMap(size, freq, normalize, seed = None):
 
     # create vector of shape 4,1 ; it will be useful later
     dotProducts = np.zeros((4,), dtype = float)
-    
+
     for coord in range(size**2):
         # get latice cell coords
-        x = coord // size
-        y = coord % size
-        ix = x // cellLength
-        iy = y // cellLength
+        ix = (coord // size) // cellLength
+        iy = (coord % size) // cellLength
 
         # get fractional part inside cell
-        fx = x % cellLength
-        fy = y % cellLength
+        fx = (coord // size) % cellLength
+        fy = (coord % size) % cellLength
 
         # compute the vectors to the four corners
         relativeVectors = GetRelativeVectors(fx, fy, cellLength)
@@ -107,7 +74,7 @@ def CreatePerlinMap(size, freq, normalize, seed = None):
         interpol = Interpolate(Fade(fx/cellLength), Fade(fy/cellLength), dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3])
 
         # asign value
-        imag[x, y] = interpol
+        imag[coord] = interpol
 
 
     if normalize: 
@@ -119,7 +86,7 @@ def CreatePerlinMap(size, freq, normalize, seed = None):
 
 def CreateFractalMap(size, freqs, seed = None):
     # Create image grid
-    imag = np.zeros((size,size), dtype = float)
+    imag = np.zeros((size**2,), dtype = float)
 
     # For each frequence :
     dilatation = 1
@@ -137,5 +104,4 @@ def CreateFractalMap(size, freqs, seed = None):
     max = np.max(imag)
     min = np.min(imag)
     imag = (imag - min) / (max - min)
-
-    return imag
+    return imag.reshape(size, size)

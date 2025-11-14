@@ -1,7 +1,7 @@
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 import numpy as np
-from maps import CreateRandomMap, CreateValueMap, CreatePerlinMap, CreateFractalMap
+from maps import CreateRandomMap, CreateValueMap, CreateFractalMap
 from ploting_utilities import ShowMap, ShowFourNoises
 
 def GenerateFourNoises():
@@ -14,7 +14,7 @@ def GenerateFourNoises():
     two = timer()
     print("Elapsed time :", two - one)
 
-    PerlinNoise = CreatePerlinMap(256, 4, True)
+    PerlinNoise = CreateFractalMap(256, [4])
     three = timer()
     print("Elapsed time :", three - two)
 
