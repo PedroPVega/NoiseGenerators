@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from vectoring import Fade, Lerp, Interpolate, GetPermutation, GetConstantVector
+from vectoring import Fade, Lerp, Interpolate, GetPermutation, GetCornerVectors, GetRelativeVectors
 
 def CreateRandomMap(size):
     return np.random.random((size,size))
@@ -38,16 +38,7 @@ def CreateValueMap(size, nb_poles, seed = None):
     return mat
 
 def CreatePerlinMap(size, freq, normalize, seed = None):
-    # create image grid 100 * 100
-    imag = np.zeros((size,size), dtype = float)
-
-    # create grid with every pseudo-random generated gradient vector
-    gradientGrid = GetPermutation(freq, seed)
-    cellLength = size // freq
-
-    # create vector of shape 4,1 ; it will be useful later
-    dotProducts = np.zeros((4,), dtype = float)
-    
+    '''
     # foreach point in the image x, y
     for x in range(size):
         for y in range(size):
@@ -60,23 +51,13 @@ def CreatePerlinMap(size, freq, normalize, seed = None):
             fy = y % cellLength
 
             # compute the vectors to the four corners
-            topLeft = [fx, fy]
-            bottomLeft = [fx - cellLength, fy]
-            bottomRight = [fx - cellLength, fy - cellLength]
-            topRight = [fx, fy - cellLength]
-            relativeVectors = np.array([topLeft, bottomLeft, bottomRight, topRight])
-            relativeVectors = relativeVectors / cellLength
+            relativeVectors = GetRelativeVectors(fx, fy, cellLength)
 
             # retreive gradient vectors from the four corners
             ix_wrap = (ix + 1) % freq
-            iy_wrap = (iy + 1) % freq
-            #print(ix, iy)
-            #time.sleep(0.001)
-            gradTopLeft = GetConstantVector(gradientGrid[ix, iy])
-            gradBottomLeft = GetConstantVector(gradientGrid[ix_wrap, iy])
-            gradBottomRight = GetConstantVector(gradientGrid[ix_wrap, iy_wrap])
-            gradTopRight = GetConstantVector(gradientGrid[ix, iy_wrap])
-            gradVectors = [gradTopLeft, gradBottomLeft, gradBottomRight, gradTopRight]
+            iy_wrap = (iy + 1) % freq 
+
+            gradVectors = GetCornerVectors(gradientGrid, ix, ix_wrap, iy, iy_wrap)
 
             # calculate every dot product
             for i in range(4):
@@ -87,6 +68,47 @@ def CreatePerlinMap(size, freq, normalize, seed = None):
 
             # asign value
             imag[x, y] = interpol
+    '''
+    # create image grid 100 * 100
+    imag = np.zeros((size,size), dtype = float)
+
+    # create grid with every pseudo-random generated gradient vector
+    gradientGrid = GetPermutation(freq, seed)
+    cellLength = size // freq
+
+    # create vector of shape 4,1 ; it will be useful later
+    dotProducts = np.zeros((4,), dtype = float)
+    
+    for coord in range(size**2):
+        # get latice cell coords
+        x = coord // size
+        y = coord % size
+        ix = x // cellLength
+        iy = y // cellLength
+
+        # get fractional part inside cell
+        fx = x % cellLength
+        fy = y % cellLength
+
+        # compute the vectors to the four corners
+        relativeVectors = GetRelativeVectors(fx, fy, cellLength)
+
+        # retreive gradient vectors from the four corners
+        ix_wrap = (ix + 1) % freq
+        iy_wrap = (iy + 1) % freq 
+
+        gradVectors = np.array(GetCornerVectors(gradientGrid, ix, ix_wrap, iy, iy_wrap))
+
+        # calculate every dot product
+        dotProducts = np.dot(relativeVectors, gradVectors.T)
+        dotProducts = np.diag(dotProducts)
+
+        # calculate interpolation of 4 corners with Fade
+        interpol = Interpolate(Fade(fx/cellLength), Fade(fy/cellLength), dotProducts[0], dotProducts[1], dotProducts[2], dotProducts[3])
+
+        # asign value
+        imag[x, y] = interpol
+
 
     if normalize: 
         max = np.max(imag)
