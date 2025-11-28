@@ -1,12 +1,12 @@
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 import numpy as np
-from maps import CreateRandomMap, CreateValueMap, CreateFractalMap
+from maps import CreateRandomMap, CreateValueMap, CreateFractalMap, CreateVoronoiMap
 from ploting_utilities import ShowMap, ShowFourNoises
 
 def GenerateFourNoises():
     start = timer()
-    WhiteNoise = CreateRandomMap(256)
+    VoronoiNoise = CreateVoronoiMap(256, 8)
     one = timer()
     print("Elapsed time :", one - start)
 
@@ -22,10 +22,10 @@ def GenerateFourNoises():
     four = timer()
     print("Elapsed time :", four - three)
     
-    return [WhiteNoise, ValueNoise, PerlinNoise, FractalNoise]
+    return [VoronoiNoise, ValueNoise, PerlinNoise, FractalNoise]
 
 
-ShowFourNoises(GenerateFourNoises(), ["White noise sample", 
+ShowFourNoises(GenerateFourNoises(), ["Voronoi noise sample", 
                                       "Value noise sample", 
                                       "Perlin noise sample", 
                                       "Fractal noise sample"])

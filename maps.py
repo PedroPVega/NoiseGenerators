@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from vectoring import Fade, Lerp, Interpolate, GetPermutation, GetCornerVectors, GetRelativeVectors
+from vectoring import Fade, Interpolate, GetPermutation, GetCornerVectors, GetRelativeVectors
 
 def CreateRandomMap(size):
     return np.random.random((size,size))
@@ -105,3 +105,34 @@ def CreateFractalMap(size, freqs, seed = None):
     min = np.min(imag)
     imag = (imag - min) / (max - min)
     return imag.reshape(size, size)
+
+def CreateVoronoiMap(size, freqs, seed = None):
+    # set seed if chosen
+    if seed: np.random.seed(seed)
+
+    # place nuclei
+    voronoi = np.zeros((size, size))
+    nucleus_coords = np.zeros((freqs,freqs,2))
+    number_of_cells = freqs
+    size_of_cells = 256 // freqs
+    for i in range(number_of_cells):
+        for j in range(number_of_cells):
+            x = np.random.randint(0, size_of_cells)
+            y = np.random.randint(0, size_of_cells)
+            nucleus_coords[i, j] = [i*size_of_cells + x, j*size_of_cells + y]
+            voronoi[i*size_of_cells + x, j*size_of_cells + y] = 0
+
+    # calculate distances to nuclei
+    for x in range(size):
+        for y in range(size):
+            distances = np.subtract(np.array([x, y]), nucleus_coords.reshape(-1, 2))
+            distances = np.multiply(distances, distances)
+            distances = np.sqrt(np.sum(distances, axis = 1))
+            voronoi[x, y] = np.min(distances)
+    
+    # normalize
+    max = np.max(voronoi)
+    min = np.min(voronoi)
+    voronoi = (voronoi - min) / (max - min)
+
+    return voronoi

@@ -9,7 +9,7 @@ For the moment, I have made algoritmhs for :
 - Value noise (I would resume it as randomly coherent white noise)
 - Perlin noise (a variant of gradient noise, a much more smoothed value noise)
 - Fractal noise (basically just various perlin noises stacked up)
+- Voronoi noise (cellular-like looking noise with many variants)
 
 ## Noises I still wanna do
-- Voronoi noise
 - Simplex noise (visually similar to perlin noise, but seems fun)

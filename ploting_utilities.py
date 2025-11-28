@@ -10,6 +10,7 @@ def ShowFourNoises(noises, titles):
     axes[1, 0].set_title(titles[2])
     axes[1, 1].imshow(noises[3], cmap = 'gray')
     axes[1, 1].set_title(titles[3])
+    plt.tight_layout()
     plt.show()
         
 def ShowMap(mat):
